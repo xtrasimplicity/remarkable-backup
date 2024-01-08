@@ -15,6 +15,7 @@ namespace RemarkableBackupLibs
         private SftpClient _client;
 
         public SSH() {
+            ValidateConfiguration();
             _client = new SftpClient(Configuration.SSH.Host, Configuration.SSH.Username, Configuration.SSH.Password);
             _timeout = Configuration.SSH.ConnectionTimeout;
         }
@@ -66,6 +67,13 @@ namespace RemarkableBackupLibs
             if (!success) throw new SSHConnectionTimedOutException(Configuration.SSH.Host, Configuration.SSH.ConnectionTimeout);
         }
 
+        private void ValidateConfiguration()
+        {
+            if (string.IsNullOrWhiteSpace(Configuration.SSH.Host) || string.IsNullOrWhiteSpace(Configuration.SSH.Username) || string.IsNullOrWhiteSpace(Configuration.SSH.Password))
+            {
+                throw new MissingConfigurationException("You must supply SSH configuration via the configuration file.");
+            }
+        }
 
         public class SSHConnectionTimedOutException : Exception
         {

@@ -11,7 +11,7 @@ namespace RemarkableBackupLibs
     public class Configuration
     {
         private const string CONFIGURATION_FILE = "config.cfg";
-        public class SSHConfiguration
+        public struct SSHConfiguration
         {
             internal int _connectionTimeOut;
             internal string _host;
@@ -24,13 +24,19 @@ namespace RemarkableBackupLibs
             public int ConnectionTimeout { get { return _connectionTimeOut;} }
         }
 
-        public static SSHConfiguration SSH;
+        public struct SyncConfiguration
+        {
+            internal string _targetPath;
+
+            public string TargetPath { get { return _targetPath; } }
+        }
+
+        public static SSHConfiguration SSH = new SSHConfiguration();
+        public static SyncConfiguration Sync = new SyncConfiguration();
 
         public static void Load()
         {
             if (!File.Exists(CONFIGURATION_FILE)) return;
-
-            SSH = new SSHConfiguration();
 
             string[] rawContents = File.ReadAllLines(CONFIGURATION_FILE);
 
@@ -55,9 +61,17 @@ namespace RemarkableBackupLibs
                     case "ssh.connection_timeout":
                         SSH._connectionTimeOut = int.Parse(value);
                         continue;
+                    case "sync.target_path":
+                        Sync._targetPath = value;
+                        continue;
 
                 }
             }
         }
+    }
+
+    public class MissingConfigurationException : Exception
+    {
+        public MissingConfigurationException(string message) : base(message) { }
     }
 }
